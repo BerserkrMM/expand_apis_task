@@ -85,4 +85,36 @@ public class UserEntity {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserEntity that)) return false;
+
+        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
+        if (getUsername() != null ? !getUsername().equals(that.getUsername()) : that.getUsername() != null)
+            return false;
+        if (getPassword() != null ? !getPassword().equals(that.getPassword()) : that.getPassword() != null)
+            return false;
+        return getRoles() != null ? getRoles().equals(that.getRoles()) : that.getRoles() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getUsername() != null ? getUsername().hashCode() : 0);
+        result = 31 * result + (getPassword() != null ? getPassword().hashCode() : 0);
+        result = 31 * result + (getRoles() != null ? getRoles().hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
+    }
 }

@@ -7,42 +7,40 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthEntryPoint authEntryPoint;
+    private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
     public SecurityConfig(JwtAuthEntryPoint authEntryPoint) {
-        this.authEntryPoint = authEntryPoint;
+        this.jwtAuthEntryPoint = authEntryPoint;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint(authEntryPoint)
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeHttpRequests(authz ->
-                        authz
-                                .requestMatchers(HttpMethod.GET, "/user/all").permitAll()
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(conf -> conf.authenticationEntryPoint(jwtAuthEntryPoint))
+                .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(conf ->
+                        conf
+                                .requestMatchers(HttpMethod.GET, "/user/all").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/user/authenticate").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/user/add").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/products/add").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/products/all").authenticated()
+                                .anyRequest().permitAll()
                 )
-                .formLogin(withDefaults())
-                .httpBasic(withDefaults());
+                .httpBasic(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -52,7 +50,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public  JwtAuthenticationFilter jwtAuthenticationFilter() {
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
     }
 
@@ -60,5 +58,4 @@ public class SecurityConfig {
     public AuthenticationManager webAuthenticationManager(final AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 }

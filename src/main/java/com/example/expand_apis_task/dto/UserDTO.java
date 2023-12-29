@@ -5,10 +5,6 @@ public class UserDTO {
     private String username;
     private String password;
 
-    private UserDTO() {
-        // Private constructor to prevent direct instantiation
-    }
-
     public static UserDtoBuilder builder() {
         return new UserDtoBuilder();
     }
@@ -50,6 +46,34 @@ public class UserDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserDTO userDTO)) return false;
+
+        if (getId() != null ? !getId().equals(userDTO.getId()) : userDTO.getId() != null) return false;
+        if (getUsername() != null ? !getUsername().equals(userDTO.getUsername()) : userDTO.getUsername() != null)
+            return false;
+        return getPassword() != null ? getPassword().equals(userDTO.getPassword()) : userDTO.getPassword() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getUsername() != null ? getUsername().hashCode() : 0);
+        result = 31 * result + (getPassword() != null ? getPassword().hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
 

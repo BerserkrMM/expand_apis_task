@@ -5,7 +5,7 @@ import com.example.expand_apis_task.dto.UserDTO;
 import com.example.expand_apis_task.model.Role;
 import com.example.expand_apis_task.model.UserEntity;
 import com.example.expand_apis_task.service.RoleService;
-import com.example.expand_apis_task.service.UserService;
+import com.example.expand_apis_task.service.impl.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,18 +26,13 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserService userService;
-
+    private final UserServiceImpl userService;
     private final AuthenticationManager authenticationManager;
-
     private final JwtGenerator jwtGenerator;
-
     private final RoleService roleService;
-
     private final PasswordEncoder passwordEncoder;
 
-
-    public UserController(UserService userService,
+    public UserController(UserServiceImpl userService,
                           AuthenticationManager authenticationManager,
                           JwtGenerator jwtGenerator,
                           RoleService roleService,
@@ -50,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserEntity>> gelAll(){
+    public ResponseEntity<List<UserEntity>> gelAll() {
         return ResponseEntity.ok(userService.getAll());
     }
 
@@ -60,7 +55,7 @@ public class UserController {
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode((userDTO.getPassword())));
 
-        Role role = roleService.findByName("USER");
+        Role role = roleService.findByName("ROLE_USER");
         user.setRoles(Collections.singletonList(role));
 
         userService.save(user);
