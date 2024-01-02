@@ -8,6 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,6 +16,29 @@ public class ProductServiceImpl implements ProductService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Override
+    public List<ProductDTO> getAll() {
+        List<Object[]> list = new ArrayList<>();
+        try {
+            list = entityManager.createNativeQuery("SELECT id, entry_date, item_code, item_name, item_quantity, status FROM products")
+                    .getResultList();
+        } catch (Exception e) {
+            throw new IllegalStateException("Something gone wrong with records fetching: "+e.getMessage());
+        }
+
+        return list
+                .stream()
+                .map(product -> new ProductDTO.Builder()
+                    .id(Long.parseLong(product[0].toString()))
+                    .entryDate(product[1].toString())
+                    .itemCode(product[2].toString())
+                    .itemName(product[3].toString())
+                    .itemQuantity(Long.parseLong(product[4].toString()))
+                    .status(product[5].toString())
+                    .build())
+                .toList();
+    }
 
     @Transactional
     @Override
@@ -27,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         try {
-            addProductToProductsTable(addProductsDTO.getTable(), addProductsDTO.getRecords());
+            addProductsToProductsTable(addProductsDTO.getTable(), addProductsDTO.getRecords());
         } catch (Exception e) {
             throw new IllegalStateException("Problem with insertion to products table: " + e.getMessage());
         }
@@ -49,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
                 .executeUpdate();
     }
 
-    private void addProductToProductsTable(String tableName, List<ProductDTO> productDTOs) {
+    private void addProductsToProductsTable(String tableName, List<ProductDTO> productDTOs) {
         for (ProductDTO productDTO : productDTOs) {
             String insertQuery = "INSERT INTO " + tableName + " (entry_date, item_code, item_name, item_quantity, status) VALUES (?, ?, ?, ?, ?) ";
 

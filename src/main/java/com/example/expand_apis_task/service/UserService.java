@@ -7,7 +7,7 @@ import java.util.List;
 public interface UserService {
     boolean existByName(String username);
 
-    void save(UserEntity user);
+    void addUser(String username, String encodedPassword);
 
     List<UserEntity> getAll();
 }

@@ -2,7 +2,6 @@ package com.example.expand_apis_task.controller;
 
 import com.example.expand_apis_task.config.JwtGenerator;
 import com.example.expand_apis_task.dto.UserDTO;
-import com.example.expand_apis_task.model.Role;
 import com.example.expand_apis_task.model.UserEntity;
 import com.example.expand_apis_task.service.RoleService;
 import com.example.expand_apis_task.service.impl.UserServiceImpl;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -51,15 +49,10 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addUser(@RequestBody UserDTO userDTO) {
-        UserEntity user = new UserEntity();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(passwordEncoder.encode((userDTO.getPassword())));
-
-        Role role = roleService.findByName("ROLE_USER");
-        user.setRoles(Collections.singletonList(role));
-
-        userService.save(user);
-
+        if (userDTO.getPassword()==null){
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+        userService.addUser(userDTO.getUsername(), passwordEncoder.encode((userDTO.getPassword())));
         return ResponseEntity.ok("User added successfully.");
     }
 

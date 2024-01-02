@@ -1,6 +1,7 @@
 package com.example.expand_apis_task.dto;
 
 public class ProductDTO {
+    private Long id;
     private String entryDate;
     private String itemCode;
     private String itemName;
@@ -11,6 +12,7 @@ public class ProductDTO {
     }
 
     public static class Builder {
+        private Long id;
         private String entryDate;
         private String itemCode;
         private String itemName;
@@ -18,6 +20,11 @@ public class ProductDTO {
         private String status;
 
         public Builder() {
+        }
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
         }
 
         public Builder entryDate(String entryDate) {
@@ -47,6 +54,7 @@ public class ProductDTO {
 
         public ProductDTO build() {
             ProductDTO dto = new ProductDTO();
+            dto.id = this.id;
             dto.entryDate = this.entryDate;
             dto.itemCode = this.itemCode;
             dto.itemName = this.itemName;
@@ -54,6 +62,14 @@ public class ProductDTO {
             dto.status = this.status;
             return dto;
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEntryDate() {
@@ -101,19 +117,22 @@ public class ProductDTO {
         if (this == o) return true;
         if (!(o instanceof ProductDTO that)) return false;
 
-        if (getItemQuantity() != that.getItemQuantity()) return false;
+        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
         if (getEntryDate() != null ? !getEntryDate().equals(that.getEntryDate()) : that.getEntryDate() != null)
             return false;
         if (getItemCode() != null ? !getItemCode().equals(that.getItemCode()) : that.getItemCode() != null)
             return false;
         if (getItemName() != null ? !getItemName().equals(that.getItemName()) : that.getItemName() != null)
             return false;
+        if (getItemQuantity() != null ? !getItemQuantity().equals(that.getItemQuantity()) : that.getItemQuantity() != null)
+            return false;
         return getStatus() != null ? getStatus().equals(that.getStatus()) : that.getStatus() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getEntryDate() != null ? getEntryDate().hashCode() : 0;
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getEntryDate() != null ? getEntryDate().hashCode() : 0);
         result = 31 * result + (getItemCode() != null ? getItemCode().hashCode() : 0);
         result = 31 * result + (getItemName() != null ? getItemName().hashCode() : 0);
         result = 31 * result + (getItemQuantity() != null ? getItemQuantity().hashCode() : 0);
@@ -124,6 +143,7 @@ public class ProductDTO {
     @Override
     public String toString() {
         return "ProductDTO{" +
+                "id=" + id +
                 ", entryDate='" + entryDate + '\'' +
                 ", itemCode='" + itemCode + '\'' +
                 ", itemName='" + itemName + '\'' +
@@ -131,5 +151,4 @@ public class ProductDTO {
                 ", status='" + status + '\'' +
                 '}';
     }
-
 }
