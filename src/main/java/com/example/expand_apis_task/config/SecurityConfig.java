@@ -21,21 +21,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    public SecurityConfig(JwtAuthEntryPoint authEntryPoint) {
-        this.jwtAuthEntryPoint = authEntryPoint;
+    public SecurityConfig(JwtAuthEntryPoint jwtAuthEntryPoint, CustomAccessDeniedHandler customAccessDeniedHandler) {
+        this.jwtAuthEntryPoint = jwtAuthEntryPoint;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .headers(hc->hc.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-
-                .exceptionHandling(conf -> conf.authenticationEntryPoint(jwtAuthEntryPoint))
                 .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(AbstractHttpConfigurer::disable)
+                .httpBasic(httpBasic->httpBasic.authenticationEntryPoint(jwtAuthEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(conf ->
                         conf
@@ -47,7 +46,9 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/products/add").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/products/all").authenticated()
                                 .anyRequest().permitAll()
-                );
+                )
+                .exceptionHandling(conf -> conf.authenticationEntryPoint(jwtAuthEntryPoint))
+                .exceptionHandling(conf -> conf.accessDeniedHandler(customAccessDeniedHandler));
 
         return http.build();
     }

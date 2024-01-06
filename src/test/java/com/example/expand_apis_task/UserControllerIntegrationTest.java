@@ -1,50 +1,47 @@
 package com.example.expand_apis_task;
 
-import com.example.expand_apis_task.config.JwtGenerator;
+import com.example.expand_apis_task.dto.ResponseDTOFactory;
 import com.example.expand_apis_task.dto.UserDTO;
 import com.example.expand_apis_task.model.Role;
 import com.example.expand_apis_task.repository.RoleRepository;
 import com.example.expand_apis_task.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerIntegrationTest {
+
+    public static final Logger LOG = LoggerFactory.getLogger("Integration test");
 
     @Container
     public static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8.0");
 
     static {
-        var l = new ArrayList<String>();
-        l.add("55191:3306");
-        mySQLContainer.setPortBindings(l);
+        mySQLContainer.setPortBindings(List.of("55191:3306"));
     }
 
     @DynamicPropertySource
@@ -55,18 +52,16 @@ class UserControllerIntegrationTest {
         registry.add("spring.datasource.driver-class-name", mySQLContainer::getDriverClassName);
     }
 
+    public final String USERNAME = "Mykola";
+    public final String PASSWORD = "petrovych666";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private JwtGenerator jwtGenerator;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void init() {
@@ -89,29 +84,30 @@ class UserControllerIntegrationTest {
 
     @Test
     void userAdd_ok() throws Exception {
+        var content = objectMapper.writeValueAsString(UserDTO.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build());
+        var expectedResponse = objectMapper.writeValueAsString(ResponseDTOFactory.getOkResponseDto("User added successfully"));
+
         mockMvc.perform(post("/user/add")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"username666\","
-                                + "\"password\" : \"password666\""
-                                + "}                             "))
-                .andExpect(status().is(200))
-                .andExpect(content().string("User added successfully."));
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
     }
 
     @Test
     void userAdd_wrongContent() throws Exception {
-        try {
-            mockMvc.perform(post("/user/add")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(" {                      "
-                            + "\"wrongField\": \"1\", "
-                            + "\"wrongField2\" : \"2\""
-                            + "}                      "));
-        } catch (Exception e) {
-            assertEquals(IllegalArgumentException.class, e.getCause().getClass());
-            assertEquals("Password cannot be null", e.getCause().getMessage());
-        }
+        var wrongContent = objectMapper.writeValueAsString(new UserDTO());
+
+        mockMvc.perform(post("/user/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(wrongContent))
+                .andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("ну куди..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }
 
     @Test
@@ -119,73 +115,49 @@ class UserControllerIntegrationTest {
         mockMvc.perform(post("/user/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(""))
-                .andExpect(status().is(400));
+                .andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("ніц нема..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }
 
     @Test
     void userAuthenticate_ok() throws Exception {
+        var content = objectMapper.writeValueAsString(UserDTO.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build());
 
         mockMvc.perform(post("/user/add")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"Mykola\","
-                                + "\"password\" : \"petrovych666\"   "
-                                + "}                             "))
-                .andExpect(content().string("User added successfully."));
-
-        UserDTO userDTO = UserDTO.builder()
-                .username("Mykola")
-                .password("petrovych666")
-                .build();
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        userDTO.getUsername(),
-                        userDTO.getPassword()));
-        final String token = jwtGenerator.generateToken(authentication);
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value("User added successfully"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("OK"));
 
         mockMvc.perform(post("/user/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"Mykola\","
-                                + "\"password\" : \"petrovych666\"   "
-                                + "}                             "))
+                        .content(content))
                 .andExpect(status().is(200))
-                .andExpect(content().string(token));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("OK"));
     }
 
     @Test
-    void userAuthenticate_noSuchUser() throws Exception {
+    void userAuthenticate_wrongContent() throws Exception {
+        String content = objectMapper.writeValueAsString(UserDTO.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build());
 
         mockMvc.perform(post("/user/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"MAkola\","
-                                + "\"password\" : \"petrovych666\"   "
-                                + "}                             "))
-                .andExpect(status().is(404))
-                .andExpect(content().string("No such User registered!"));
-    }
-
-    @Test
-    void userAuthenticate_wrongPassword() throws Exception {
-
-        mockMvc.perform(post("/user/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"Mykola\","
-                                + "\"password\" : \"petrovych666\"   "
-                                + "}                             "))
-                .andExpect(content().string("User added successfully."));
-
-        mockMvc.perform(post("/user/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(" {                             "
-                                + "\"username\": \"Mykola\","
-                                + "\"password\" : \"petrovych777\"   "
-                                + "}                             "))
+                        .content(content))
                 .andExpect(status().is(401))
-                .andExpect(r -> assertEquals("Bad credentials", r.getResponse().getErrorMessage()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("протри очі..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }
-
 }

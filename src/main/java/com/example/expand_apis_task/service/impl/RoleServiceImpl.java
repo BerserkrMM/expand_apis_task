@@ -12,18 +12,18 @@ import java.util.NoSuchElementException;
 @Service
 public class RoleServiceImpl implements RoleService {
 
-//    @PostConstruct
-//    private void fillRoles() {
-//        if (roleRepository.findAll().isEmpty()) {
-//            Role r1 = new Role();
-//            Role r2 = new Role();
-//            Role r3 = new Role();
-//            r1.setName("ROLE_USER");
-//            r2.setName("ROLE_ADMIN");
-//            r3.setName("ROLE_GUEST");
-//            roleRepository.saveAll(List.of(r1,r2,r3));
-//        }
-//    }
+    @PostConstruct
+    private void fillRoles() {
+        if (roleRepository.findAll().isEmpty()) {
+            Role r1 = new Role();
+            Role r2 = new Role();
+            Role r3 = new Role();
+            r1.setName("ROLE_USER");
+            r2.setName("ROLE_ADMIN");
+            r3.setName("ROLE_GUEST");
+            roleRepository.saveAll(List.of(r1,r2,r3));
+        }
+    }
 
     private final RoleRepository roleRepository;
 

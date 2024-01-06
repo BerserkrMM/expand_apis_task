@@ -2,6 +2,8 @@ package com.example.expand_apis_task.service.impl;
 
 import com.example.expand_apis_task.dto.AddProductsDTO;
 import com.example.expand_apis_task.dto.ProductDTO;
+import com.example.expand_apis_task.excaption.ProductAddException;
+import com.example.expand_apis_task.excaption.ProductCreationException;
 import com.example.expand_apis_task.service.ProductService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -24,19 +26,19 @@ public class ProductServiceImpl implements ProductService {
             list = entityManager.createNativeQuery("SELECT id, entry_date, item_code, item_name, item_quantity, status FROM products")
                     .getResultList();
         } catch (Exception e) {
-            throw new IllegalStateException("Something gone wrong with records fetching: "+e.getMessage());
+            throw new IllegalStateException("Something gone wrong with records fetching: " + e.getMessage());
         }
 
         return list
                 .stream()
-                .map(product -> new ProductDTO.Builder()
-                    .id(Long.parseLong(product[0].toString()))
-                    .entryDate(product[1].toString())
-                    .itemCode(product[2].toString())
-                    .itemName(product[3].toString())
-                    .itemQuantity(Long.parseLong(product[4].toString()))
-                    .status(product[5].toString())
-                    .build())
+                .map(product -> new ProductDTO.ProductDTOBuilder()
+                        .id(Long.parseLong(product[0].toString()))
+                        .entryDate(product[1].toString())
+                        .itemCode(product[2].toString())
+                        .itemName(product[3].toString())
+                        .itemQuantity(Long.parseLong(product[4].toString()))
+                        .status(product[5].toString())
+                        .build())
                 .toList();
     }
 
@@ -46,14 +48,13 @@ public class ProductServiceImpl implements ProductService {
         try {
             createProductTableIfNotExists(addProductsDTO.getTable());
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Problem with products table creation: " + e.getMessage());
+            throw new ProductCreationException("Problem with products table creation");
         }
 
         try {
             addProductsToProductsTable(addProductsDTO.getTable(), addProductsDTO.getRecords());
         } catch (Exception e) {
-            throw new IllegalStateException("Problem with insertion to products table: " + e.getMessage());
+            throw new ProductAddException("Problem with insertion to products table");
         }
     }
 

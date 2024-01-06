@@ -8,59 +8,48 @@ public class ProductDTO {
     private Long itemQuantity;
     private String status;
 
-    public ProductDTO() {
+    public static ProductDTOBuilder builder() {
+        return new ProductDTOBuilder();
     }
 
-    public static class Builder {
-        private Long id;
-        private String entryDate;
-        private String itemCode;
-        private String itemName;
-        private Long itemQuantity;
-        private String status;
+    public static class ProductDTOBuilder {
 
-        public Builder() {
-        }
+        private ProductDTO productDTO;
 
-        public Builder id(Long id) {
-            this.id = id;
+        public ProductDTOBuilder() { productDTO=new ProductDTO(); }
+
+        public ProductDTOBuilder id(Long id) {
+            productDTO.id = id;
             return this;
         }
 
-        public Builder entryDate(String entryDate) {
-            this.entryDate = entryDate;
+        public ProductDTOBuilder entryDate(String entryDate) {
+            productDTO.entryDate = entryDate;
             return this;
         }
 
-        public Builder itemCode(String itemCode) {
-            this.itemCode = itemCode;
+        public ProductDTOBuilder itemCode(String itemCode) {
+            productDTO.itemCode = itemCode;
             return this;
         }
 
-        public Builder itemName(String itemName) {
-            this.itemName = itemName;
+        public ProductDTOBuilder itemName(String itemName) {
+            productDTO.itemName = itemName;
             return this;
         }
 
-        public Builder itemQuantity(Long itemQuantity) {
-            this.itemQuantity = itemQuantity;
+        public ProductDTOBuilder itemQuantity(Long itemQuantity) {
+            productDTO.itemQuantity = itemQuantity;
             return this;
         }
 
-        public Builder status(String status) {
-            this.status = status;
+        public ProductDTOBuilder status(String status) {
+            productDTO.status = status;
             return this;
         }
 
         public ProductDTO build() {
-            ProductDTO dto = new ProductDTO();
-            dto.id = this.id;
-            dto.entryDate = this.entryDate;
-            dto.itemCode = this.itemCode;
-            dto.itemName = this.itemName;
-            dto.itemQuantity = this.itemQuantity;
-            dto.status = this.status;
-            return dto;
+            return productDTO;
         }
     }
 

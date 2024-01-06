@@ -2,6 +2,8 @@ package com.example.expand_apis_task.controller;
 
 import com.example.expand_apis_task.dto.AddProductsDTO;
 import com.example.expand_apis_task.dto.ProductDTO;
+import com.example.expand_apis_task.dto.ResponseDTO;
+import com.example.expand_apis_task.dto.ResponseDTOFactory;
 import com.example.expand_apis_task.service.impl.ProductServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +24,13 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addProducts(@RequestBody AddProductsDTO addProductsDTO) {
+    public ResponseEntity<ResponseDTO<String>> addProducts(@RequestBody AddProductsDTO addProductsDTO) {
         productService.add(addProductsDTO);
-        return ResponseEntity.ok("Records added successfully");
+        return ResponseEntity.ok(ResponseDTOFactory.getOkResponseDto("Records added successfully"));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductDTO>> getAll(){
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getAll(){
+        return ResponseEntity.ok(ResponseDTOFactory.getOkResponseDto(productService.getAll()));
     }
 }
