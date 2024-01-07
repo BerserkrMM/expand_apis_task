@@ -41,31 +41,6 @@ public class ExpandApisTaskControllerAdvice {
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
-//    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-//    public ResponseDTO<?> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex, HttpServletResponse response) {
-//        var responseDTO = new ResponseDTO<>();
-//        responseDTO.setErrors(List.of("AuthenticationCredentialsNotFoundException handled", ex.getMessage(), ex.getCause() != null ? ex.getCause().getMessage() : "no cause"));
-//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//        return responseDTO;
-//    }
-//
-//    @ExceptionHandler(AccessDeniedException.class)
-//    public ResponseDTO<?> handleAccessDeniedException(AccessDeniedException ex, HttpServletResponse response) {
-//        var responseDTO = new ResponseDTO<>();
-//        responseDTO.setErrors(List.of("AccessDeniedException handled", ex.getMessage(), ex.getCause() != null ? ex.getCause().getMessage() : "no cause"));
-//        response.setStatus(HttpStatus.FORBIDDEN.value());
-//        return responseDTO;
-//    }
-//
-//    @ExceptionHandler(AuthenticationException.class)
-//    public ResponseDTO<?> handleAuthenticationException(AuthenticationException ex, HttpServletResponse response) {
-//        var responseDTO = new ResponseDTO<>();
-//        responseDTO.setErrors(List.of("AuthenticationException handled", ex.getMessage(), ex.getCause() != null ? ex.getCause().getMessage() : "no cause"));
-//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//        return responseDTO;
-//    }
-
-
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
     public ResponseEntity<ResponseDTO<?>> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex) {
         var responseDto = new ResponseDTO<>();

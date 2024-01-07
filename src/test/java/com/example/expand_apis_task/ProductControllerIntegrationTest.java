@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -28,6 +27,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_ADMIN;
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_GUEST;
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_USER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -124,9 +126,9 @@ class ProductControllerIntegrationTest {
             RoleEntity r1 = new RoleEntity();
             RoleEntity r2 = new RoleEntity();
             RoleEntity r3 = new RoleEntity();
-            r1.setName("ROLE_USER");
-            r2.setName("ROLE_ADMIN");
-            r3.setName("ROLE_GUEST");
+            r1.setName(ROLE_USER.name());
+            r2.setName(ROLE_GUEST.name());
+            r3.setName(ROLE_ADMIN.name());
             roleRepository.saveAll(List.of(r1, r2, r3));
         }
 

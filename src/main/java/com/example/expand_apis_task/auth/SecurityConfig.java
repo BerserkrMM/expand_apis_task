@@ -1,7 +1,5 @@
 package com.example.expand_apis_task.auth;
 
-import com.example.expand_apis_task.auth.JwtAuthEntryPoint;
-import com.example.expand_apis_task.auth.JwtAuthenticationFilter;
 import com.example.expand_apis_task.config.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +32,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .headers(hc->hc.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .headers(hc -> hc.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(httpBasic->httpBasic.authenticationEntryPoint(jwtAuthEntryPoint))
+                .httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(jwtAuthEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(conf ->
                         conf

@@ -1,10 +1,8 @@
 package com.example.expand_apis_task.model.enums;
 
 public enum Roles {
-    USER( "ROLE_ADMIN"),
-    ADMIN("ROLE_GUEST"),
-    GUEST("ROLE_USER");
+    ROLE_USER,
+    ROLE_ADMIN,
+    ROLE_GUEST;
 
-    Roles(String role) {
-    }
 }

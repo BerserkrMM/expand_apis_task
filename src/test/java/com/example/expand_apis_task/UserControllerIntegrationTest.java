@@ -1,7 +1,7 @@
 package com.example.expand_apis_task;
 
-import com.example.expand_apis_task.model.dto.base.ResponseDTOFactory;
 import com.example.expand_apis_task.model.dto.UserDTO;
+import com.example.expand_apis_task.model.dto.base.ResponseDTOFactory;
 import com.example.expand_apis_task.model.entity.RoleEntity;
 import com.example.expand_apis_task.repository.RoleRepository;
 import com.example.expand_apis_task.repository.UserRepository;
@@ -26,6 +26,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_ADMIN;
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_GUEST;
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_USER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,9 +74,9 @@ class UserControllerIntegrationTest {
             RoleEntity r1 = new RoleEntity();
             RoleEntity r2 = new RoleEntity();
             RoleEntity r3 = new RoleEntity();
-            r1.setName("ROLE_USER");
-            r2.setName("ROLE_ADMIN");
-            r3.setName("ROLE_GUEST");
+            r1.setName(ROLE_USER.name());
+            r2.setName(ROLE_ADMIN.name());
+            r3.setName(ROLE_GUEST.name());
             roleRepository.saveAll(List.of(r1, r2, r3));
         }
     }

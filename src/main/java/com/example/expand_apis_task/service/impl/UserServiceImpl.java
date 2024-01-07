@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.expand_apis_task.model.enums.Roles.ROLE_USER;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -51,7 +53,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(userDTO.getUsername());
         user.setPassword(userPassword);
 
-        RoleEntity roleEntity = roleService.findByName("ROLE_USER");
+        RoleEntity roleEntity = roleService.findByName(ROLE_USER.name());
         user.setRoles(List.of(roleEntity));
         try {
             userRepository.save(user);

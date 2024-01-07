@@ -5,7 +5,7 @@ public class ResponseDTO<T> extends BaseResponseDTO {
     private T data;
 
     public void setData(T data) {
-        this.data=data;
+        this.data = data;
     }
 
     public T getData() {
