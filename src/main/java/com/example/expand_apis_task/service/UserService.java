@@ -1,9 +1,6 @@
 package com.example.expand_apis_task.service;
 
-import com.example.expand_apis_task.dto.UserDTO;
-import com.example.expand_apis_task.model.UserEntity;
-
-import java.util.List;
+import com.example.expand_apis_task.model.dto.UserDTO;
 
 public interface UserService {
 

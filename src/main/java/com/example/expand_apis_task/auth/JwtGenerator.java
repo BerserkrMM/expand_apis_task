@@ -1,5 +1,6 @@
-package com.example.expand_apis_task.config;
+package com.example.expand_apis_task.auth;
 
+import com.example.expand_apis_task.exception.JwtGeneratorException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,12 +13,12 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
-import static com.example.expand_apis_task.config.SecurityConstants.JWT_EXPIRATION;
-import static com.example.expand_apis_task.config.SecurityConstants.SIGNATURE_ALGORITHM;
+import static com.example.expand_apis_task.config.consts.SecurityConstants.JWT_EXPIRATION;
+import static com.example.expand_apis_task.config.consts.SecurityConstants.SIGNATURE_ALGORITHM;
 
 @Component
 public class JwtGenerator {
-    private static final Key key = Keys.secretKeyFor(SIGNATURE_ALGORITHM);
+    private static final Key KEY = Keys.secretKeyFor(SIGNATURE_ALGORITHM);
     public static final Logger LOG = LoggerFactory.getLogger("JwtGeneratorLogger");
 
     public String generateToken(Authentication authentication) {
@@ -29,7 +30,7 @@ public class JwtGenerator {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
-                .signWith(key, SIGNATURE_ALGORITHM)
+                .signWith(KEY, SIGNATURE_ALGORITHM)
                 .compact();
         LOG.info("New token : {}", token);
         return token;
@@ -37,7 +38,7 @@ public class JwtGenerator {
 
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -47,12 +48,12 @@ public class JwtGenerator {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key)
+                    .setSigningKey(KEY)
                     .build()
                     .parseClaimsJws(token);
             return true;
         } catch (Exception ex) {
-            throw new AuthenticationCredentialsNotFoundException("JWT was exprired or incorrect", ex.fillInStackTrace());
+            throw new JwtGeneratorException("JWT was expired or incorrect", ex.getCause());
         }
     }
 

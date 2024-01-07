@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.model;
+package com.example.expand_apis_task.model.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -31,7 +31,7 @@ public class UserEntity {
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private List<Role> roles = new ArrayList<>();
+    private List<RoleEntity> roleEntities = new ArrayList<>();
 
     public UserEntity() {
     }
@@ -47,11 +47,11 @@ public class UserEntity {
         this.password = password;
     }
 
-    public UserEntity(Long id, String username, String password, List<Role> roles) {
+    public UserEntity(Long id, String username, String password, List<RoleEntity> roleEntities) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.roleEntities = roleEntities;
     }
 
     public Long getId() {
@@ -78,11 +78,11 @@ public class UserEntity {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public List<RoleEntity> getRoles() {
+        return roleEntities;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setRoles(List<RoleEntity> roleEntities) {
+        this.roleEntities = roleEntities;
     }
 }

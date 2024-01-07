@@ -1,9 +1,8 @@
-package com.example.expand_apis_task.config;
+package com.example.expand_apis_task.auth;
 
-import com.example.expand_apis_task.model.Role;
-import com.example.expand_apis_task.model.UserEntity;
+import com.example.expand_apis_task.model.entity.RoleEntity;
+import com.example.expand_apis_task.model.entity.UserEntity;
 import com.example.expand_apis_task.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -31,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    private Collection<GrantedAuthority> mapRolesToAuthorities(List<RoleEntity> roleEntities) {
+        return roleEntities.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 }

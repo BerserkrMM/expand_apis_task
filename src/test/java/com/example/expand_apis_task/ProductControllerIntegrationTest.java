@@ -1,8 +1,8 @@
 package com.example.expand_apis_task;
 
-import com.example.expand_apis_task.dto.AddProductsDTO;
-import com.example.expand_apis_task.dto.ProductDTO;
-import com.example.expand_apis_task.model.Role;
+import com.example.expand_apis_task.model.dto.AddProductsDTO;
+import com.example.expand_apis_task.model.dto.ProductDTO;
+import com.example.expand_apis_task.model.entity.RoleEntity;
 import com.example.expand_apis_task.repository.RoleRepository;
 import com.example.expand_apis_task.repository.UserRepository;
 import com.example.expand_apis_task.service.ProductService;
@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -41,7 +42,7 @@ class ProductControllerIntegrationTest {
     public static final Logger LOG = LoggerFactory.getLogger("Integration test");
 
     @Container
-    public static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8.0").withReuse(true);
+    public static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8.0");
 
     static {
         mySQLContainer.setPortBindings(List.of("55191:3306"));
@@ -120,9 +121,9 @@ class ProductControllerIntegrationTest {
         }
         if (roleRepository.findAll().size() != 3) {
             roleRepository.deleteAll();
-            Role r1 = new Role();
-            Role r2 = new Role();
-            Role r3 = new Role();
+            RoleEntity r1 = new RoleEntity();
+            RoleEntity r2 = new RoleEntity();
+            RoleEntity r3 = new RoleEntity();
             r1.setName("ROLE_USER");
             r2.setName("ROLE_ADMIN");
             r3.setName("ROLE_GUEST");
@@ -152,8 +153,7 @@ class ProductControllerIntegrationTest {
 
     @Test
     void productAdd_ok() throws Exception {
-        var products = new AddProductsDTO(TABLE_NAME, List.of(product_1, product_2));
-        var content = objectMapper.writeValueAsString(products);
+        var content = objectMapper.writeValueAsString(new AddProductsDTO(TABLE_NAME, List.of(product_1, product_2)));
 
         mockMvc.perform(post("/products/add")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ class ProductControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0]").value("крива таблиця..."))
+                .andExpect(jsonPath("$.errors[0]").value("TableCreationException handled"))
                 .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.status").value("FAILED"));
     }
@@ -189,7 +189,7 @@ class ProductControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0]").value("тухляк не пройде..."))
+                .andExpect(jsonPath("$.errors[0]").value("ProductAddException handled"))
                 .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.status").value("FAILED"));
     }

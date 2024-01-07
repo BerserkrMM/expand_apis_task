@@ -1,16 +1,15 @@
 package com.example.expand_apis_task.service.impl;
 
-import com.example.expand_apis_task.config.JwtGenerator;
-import com.example.expand_apis_task.dto.UserDTO;
-import com.example.expand_apis_task.excaption.UserAddException;
-import com.example.expand_apis_task.excaption.UserAuthException;
-import com.example.expand_apis_task.model.Role;
-import com.example.expand_apis_task.model.UserEntity;
+import com.example.expand_apis_task.auth.JwtGenerator;
+import com.example.expand_apis_task.exception.UserAddException;
+import com.example.expand_apis_task.exception.UserAuthException;
+import com.example.expand_apis_task.model.dto.UserDTO;
+import com.example.expand_apis_task.model.entity.RoleEntity;
+import com.example.expand_apis_task.model.entity.UserEntity;
 import com.example.expand_apis_task.repository.UserRepository;
 import com.example.expand_apis_task.service.RoleService;
 import com.example.expand_apis_task.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,8 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,37 +43,35 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addUser(UserDTO userDTO) {
-        if (userDTO.getPassword() == null) {
-            throw new UserAddException("Password cannot be null");
-        }
+        String userPassword = Optional.ofNullable(userDTO.getPassword())
+                .map(passwordEncoder::encode)
+                .orElseThrow(() -> new UserAddException("Password cannot be null"));
 
         UserEntity user = new UserEntity();
         user.setUsername(userDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setPassword(userPassword);
 
-        try{
-            Role role = roleService.findByName("ROLE_USER");
-            user.setRoles(List.of(role));
+        RoleEntity roleEntity = roleService.findByName("ROLE_USER");
+        user.setRoles(List.of(roleEntity));
+        try {
             userRepository.save(user);
-        }
-        catch (Exception e){
-            throw new UserAddException("Something wrong with User add",e);
+        } catch (Exception e) {
+            throw new UserAddException("Cannot save user", e);
         }
     }
 
     @Override
-    public String authenticateUser(UserDTO userDTO) throws UserAddException {
+    public String authenticateUser(UserDTO userDTO) {
         String token;
         Authentication authentication;
 
-        try{
+        try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             userDTO.getUsername(),
                             userDTO.getPassword()));
-        }
-        catch (AuthenticationException e){
-            throw new UserAuthException("User auth problem",e);
+        } catch (AuthenticationException e) {
+            throw new UserAuthException("User auth problem", e);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -1,7 +1,7 @@
 package com.example.expand_apis_task.service;
 
-import com.example.expand_apis_task.model.Role;
+import com.example.expand_apis_task.model.entity.RoleEntity;
 
 public interface RoleService{
-    Role findByName(String name);
+    RoleEntity findByName(String name);
 }

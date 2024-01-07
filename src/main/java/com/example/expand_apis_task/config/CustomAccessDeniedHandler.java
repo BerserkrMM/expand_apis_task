@@ -11,6 +11,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+@Deprecated
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     private final HandlerExceptionResolver resolver;

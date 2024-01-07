@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.excaption;
+package com.example.expand_apis_task.exception;
 
 public class UserAddException extends RuntimeException{
 

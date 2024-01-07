@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.config;
+package com.example.expand_apis_task.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

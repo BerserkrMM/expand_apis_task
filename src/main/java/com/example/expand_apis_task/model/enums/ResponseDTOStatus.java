@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.dto;
+package com.example.expand_apis_task.model.enums;
 
 public enum ResponseDTOStatus {
     OK(1),

@@ -1,8 +1,8 @@
 package com.example.expand_apis_task;
 
-import com.example.expand_apis_task.dto.ResponseDTOFactory;
-import com.example.expand_apis_task.dto.UserDTO;
-import com.example.expand_apis_task.model.Role;
+import com.example.expand_apis_task.model.dto.base.ResponseDTOFactory;
+import com.example.expand_apis_task.model.dto.UserDTO;
+import com.example.expand_apis_task.model.entity.RoleEntity;
 import com.example.expand_apis_task.repository.RoleRepository;
 import com.example.expand_apis_task.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +29,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
@@ -67,9 +68,9 @@ class UserControllerIntegrationTest {
     void init() {
         if (roleRepository.findAll().size() != 3) {
             roleRepository.deleteAll();
-            Role r1 = new Role();
-            Role r2 = new Role();
-            Role r3 = new Role();
+            RoleEntity r1 = new RoleEntity();
+            RoleEntity r2 = new RoleEntity();
+            RoleEntity r3 = new RoleEntity();
             r1.setName("ROLE_USER");
             r2.setName("ROLE_ADMIN");
             r3.setName("ROLE_GUEST");
@@ -98,6 +99,21 @@ class UserControllerIntegrationTest {
     }
 
     @Test
+    void userAdd_alreadyExist() throws Exception {
+        var content = objectMapper.writeValueAsString(UserDTO.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build());
+        var expectedResponse = objectMapper.writeValueAsString(ResponseDTOFactory.getOkResponseDto("User added successfully"));
+
+        mockMvc.perform(post("/user/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+    }
+
+    @Test
     void userAdd_wrongContent() throws Exception {
         var wrongContent = objectMapper.writeValueAsString(new UserDTO());
 
@@ -105,7 +121,7 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongContent))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("ну куди..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("UserAddException handled"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }
@@ -116,7 +132,7 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(""))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("ніц нема..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("HttpMessageNotReadableException handled"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }
@@ -156,7 +172,7 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().is(401))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("протри очі..."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]").value("UserAuthException handled"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").isEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("FAILED"));
     }

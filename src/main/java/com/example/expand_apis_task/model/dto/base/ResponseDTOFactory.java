@@ -1,4 +1,6 @@
-package com.example.expand_apis_task.dto;
+package com.example.expand_apis_task.model.dto.base;
+
+import com.example.expand_apis_task.model.enums.ResponseDTOStatus;
 
 import java.util.List;
 

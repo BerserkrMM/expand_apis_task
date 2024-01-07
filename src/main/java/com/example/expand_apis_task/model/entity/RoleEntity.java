@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.model;
+package com.example.expand_apis_task.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "roles")
-public class Role {
+public class RoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,14 +17,14 @@ public class Role {
     @Column(unique = true)
     private String name;
 
-    public Role() {
+    public RoleEntity() {
     }
 
-    public Role(String name) {
+    public RoleEntity(String name) {
         this.name = name;
     }
 
-    public Role(Long id, String name) {
+    public RoleEntity(Long id, String name) {
         this.id = id;
         this.name = name;
     }

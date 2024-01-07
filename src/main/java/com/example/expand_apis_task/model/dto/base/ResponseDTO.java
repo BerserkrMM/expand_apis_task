@@ -1,4 +1,4 @@
-package com.example.expand_apis_task.dto;
+package com.example.expand_apis_task.model.dto.base;
 
 public class ResponseDTO<T> extends BaseResponseDTO {
 
